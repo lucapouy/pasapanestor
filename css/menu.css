@@ -1,0 +1,168 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Orbitron:wght@600;700;800&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    min-height: 100vh;
+    font-family: 'Inter', sans-serif;
+    color: white;
+    background:
+        radial-gradient(circle at top left, #123b70 0%, transparent 35%),
+        linear-gradient(135deg, #071426, #0b1930 55%, #101d3a);
+}
+
+/* NAVBAR */
+
+.navbar {
+    width: 100%;
+    height: 78px;
+    padding: 0 7%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(5, 14, 30, 0.85);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    backdrop-filter: blur(12px);
+}
+
+.logo {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 23px;
+    font-weight: 800;
+    color: #36cfff;
+    letter-spacing: 2px;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.nav-links a {
+    color: #cbd5e1;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 11px 17px;
+    border-radius: 9px;
+    transition: 0.25s;
+}
+
+.nav-links a:hover {
+    color: white;
+    background: rgba(54, 207, 255, 0.12);
+}
+
+.nav-links .cerrar-sesion {
+    color: #ff8b8b;
+    border: 1px solid rgba(255, 100, 100, 0.35);
+}
+
+.nav-links .cerrar-sesion:hover {
+    background: rgba(255, 80, 80, 0.15);
+    color: #ffaaaa;
+}
+
+/* CONTENIDO PRINCIPAL */
+
+.contenedor {
+    width: 90%;
+    max-width: 1150px;
+    margin: 75px auto;
+    text-align: center;
+}
+
+.contenedor h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(28px, 4vw, 45px);
+    color: white;
+    margin-bottom: 15px;
+}
+
+.subtitulo {
+    color: #9aabc2;
+    font-size: 16px;
+    margin-bottom: 55px;
+}
+
+.contenedor h2 {
+    font-size: 23px;
+    margin-bottom: 30px;
+    color: #dceaff;
+}
+
+/* TARJETAS DE JUEGO */
+
+.modos {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 22px;
+}
+
+.modo {
+    min-height: 145px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    border-radius: 17px;
+    background: linear-gradient(145deg, #172c4c, #10213b);
+    border: 1px solid rgba(83, 183, 255, 0.16);
+    color: white;
+    text-decoration: none;
+    font-size: 17px;
+    font-weight: 700;
+    transition: 0.3s ease;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.18);
+}
+
+.modo:hover {
+    transform: translateY(-7px);
+    background: linear-gradient(145deg, #174b78, #12345b);
+    border-color: #36cfff;
+    box-shadow: 0 12px 30px rgba(0, 170, 255, 0.18);
+}
+
+/* TABLETS */
+
+@media (max-width: 900px) {
+    .modos {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* CELULARES */
+
+@media (max-width: 600px) {
+    .navbar {
+        height: auto;
+        padding: 20px;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .nav-links {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 5px;
+    }
+
+    .nav-links a {
+        padding: 9px 11px;
+        font-size: 12px;
+    }
+
+    .contenedor {
+        margin: 45px auto;
+    }
+
+    .modos {
+        grid-template-columns: 1fr;
+    }
+}

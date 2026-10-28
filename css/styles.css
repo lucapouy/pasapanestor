@@ -1,0 +1,221 @@
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    min-height: 100vh;
+    background: radial-gradient(circle at center, #092d70, #020817 75%);
+    color: white;
+}
+
+.contenedor {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 30px 15px;
+}
+
+/* LOGO */
+
+.logo {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.logo h1 {
+    font-size: 48px;
+    letter-spacing: 5px;
+    color: white;
+    text-shadow: 0 0 15px #008cff;
+    margin-top: 15px;
+}
+
+.logo p {
+    color: #00c8ff;
+    font-size: 11px;
+    letter-spacing: 5px;
+    margin-top: 10px;
+}
+
+/* ROSCO */
+
+.rosco {
+    width: 100px;
+    height: 100px;
+    margin: auto;
+    border: 3px solid #008cff;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    box-shadow: 0 0 25px #008cff;
+}
+
+.rosco span {
+    color: #00c8ff;
+    font-size: 13px;
+    font-weight: bold;
+    margin: 2px;
+}
+
+/* LOGIN */
+
+.login {
+    width: 100%;
+    max-width: 430px;
+    padding: 40px 30px;
+    background: rgba(0, 10, 40, 0.92);
+    border: 1px solid #008cff;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 0 0 30px rgba(0, 140, 255, 0.3);
+}
+
+.login h2 {
+    font-size: 28px;
+    margin-bottom: 12px;
+}
+
+.descripcion {
+    color: #a9c9ee;
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 30px;
+}
+
+/* INPUTS */
+
+input {
+    width: 100%;
+    padding: 15px;
+    margin-bottom: 18px;
+    background: #071b43;
+    border: 1px solid #2866a9;
+    border-radius: 10px;
+    color: white;
+    font-size: 15px;
+    outline: none;
+}
+
+input:focus {
+    border-color: #00c8ff;
+    box-shadow: 0 0 10px #008cff;
+}
+
+input::placeholder {
+    color: #a9c9ee;
+}
+
+/* BOTONES */
+
+.btn-login {
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(90deg, #006eff, #00bfff);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-login:hover {
+    transform: scale(1.03);
+    box-shadow: 0 0 20px #008cff;
+}
+
+/* SEPARADOR */
+
+.separador {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #7898c4;
+    font-size: 11px;
+    margin: 25px 0;
+}
+
+.separador span {
+    height: 1px;
+    flex: 1;
+    background: #2866a9;
+}
+
+/* INVITADO */
+
+.btn-invitado {
+    display: block;
+    width: 100%;
+    padding: 15px;
+    border: 1px solid #00c8ff;
+    border-radius: 10px;
+    color: #00c8ff;
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.btn-invitado span {
+    margin-right: 8px;
+}
+
+.btn-invitado:hover {
+    background: #008cff;
+    color: white;
+    box-shadow: 0 0 20px #008cff;
+}
+
+/* REGISTRO */
+
+.registro {
+    margin-top: 25px;
+    color: #a9c9ee;
+    font-size: 14px;
+}
+
+.registro a {
+    color: #00c8ff;
+    text-decoration: none;
+}
+
+.registro a:hover {
+    text-decoration: underline;
+}
+
+/* FOOTER */
+
+footer {
+    margin-top: 30px;
+    text-align: center;
+    color: #54769e;
+    font-size: 10px;
+    letter-spacing: 2px;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 480px) {
+
+    .logo h1 {
+        font-size: 32px;
+    }
+
+    .login {
+        padding: 30px 20px;
+    }
+
+    footer {
+        font-size: 8px;
+    }
+
+}

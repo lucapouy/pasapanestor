@@ -290,181 +290,301 @@ const obtenerPregunta = (letra) => {
   return preguntasElegidas[letra];
 };
 
+
 // ==========================================
 // ELEMENTOS DEL HTML
 // ==========================================
 
 const rosco = document.getElementById("rosco");
 const preguntaElemento = document.getElementById("pregunta");
-const letraActualElemento = document.getElementById("letra-actual");
+const letraActualElemento = document.getElementById("estadoPregunta");
 const respuestaInput = document.getElementById("respuesta");
-const botonResponder = document.getElementById("responder");
-const botonPasapalabra = document.getElementById("pasapalabra");
-const botonPausar = document.getElementById("pausar");
-const botonReiniciar = document.getElementById("reiniciar");
-const botonJugarOtra = document.getElementById("jugar-otra");
+const formularioRespuesta = document.getElementById("formRespuesta");
+const botonResponder = formularioRespuesta?.querySelector('button[type="submit"]');
+const botonPasapalabra = document.getElementById("btnPasapalabra");
+const botonPausar = document.getElementById("btnPausa");
+const botonReiniciar = document.getElementById("btnReiniciar");
+const botonJugarOtra = document.getElementById("btnJugarOtra");
 const tiempoElemento = document.getElementById("tiempo");
 const correctasElemento = document.getElementById("correctas");
 const incorrectasElemento = document.getElementById("incorrectas");
-const tituloElemento = document.getElementById("titulo-modo");
-const pantallaFinal = document.getElementById("pantalla-final");
-const resultadoFinal = document.getElementById("resultado-final");
+const pasadasElemento = document.getElementById("pasadas");
+const restantesElemento = document.getElementById("restantes");
+const porcentajeElemento = document.getElementById("porcentaje");
+const barraProgreso = document.getElementById("barraProgreso");
+const dificultadElemento = document.getElementById("dificultad");
+const tituloElemento = document.getElementById("tituloModo");
+const subtituloElemento = document.getElementById("subtituloModo");
+const pantallaFinal = document.getElementById("resultadoFinal");
+const resumenFinal = document.getElementById("resumenFinal");
+const mensajeElemento = document.getElementById("mensaje");
+
+// ==========================================
+// CONFIGURACIÓN
+// ==========================================
 
 if (tituloElemento) {
-  tituloElemento.textContent = nombresModos[modo] || "Modo Clásico";
+    tituloElemento.textContent = nombresModos[modo] || "Modo Clásico";
 }
+
+let duracionPartida = Number(dificultadElemento?.value) || 200;
+
 // ==========================================
-// FUNCIONES DEL ROSCO
+// CREAR ROSCO
 // ==========================================
 
 function crearRosco() {
-  if (!rosco) return;
+    if (!rosco) return;
 
-  rosco.innerHTML = "";
+    rosco.innerHTML = "";
 
-  letras.forEach((letra, indice) => {
-    const boton = document.createElement("button");
-    boton.type = "button";
-    boton.id = "letra-" + letra;
-    boton.className = "letra";
-    boton.textContent = letra;
+    letras.forEach((letra, indice) => {
+        const boton = document.createElement("button");
 
-    // Distribuir las letras en círculo
-    const angulo = (indice / letras.length) * Math.PI * 2 - Math.PI / 2;
-    const radio = 140;
-    const x = 150 + Math.cos(angulo) * radio;
-    const y = 150 + Math.sin(angulo) * radio;
+        boton.type = "button";
+        boton.id = "letra-" + letra;
+        boton.className = "letra";
+        boton.textContent = letra;
 
-    boton.style.position = "absolute";
-    boton.style.left = x + "px";
-    boton.style.top = y + "px";
-    boton.style.transform = "translate(-50%, -50%)";
+        const centro = rosco.clientWidth / 2;
+        const radio = Math.max(centro - 25, 90);
 
-    boton.addEventListener("click", () => {
-      const posicion = letras.indexOf(letra);
-      if (posicion >= 0) {
-        indiceActual = posicion;
-        mostrarPregunta();
-      }
+        const angulo = (indice / letras.length) * Math.PI * 2 - Math.PI / 2;
+
+        const x = centro + Math.cos(angulo) * radio;
+        const y = centro + Math.sin(angulo) * radio;
+
+        boton.style.left = x + "px";
+        boton.style.top = y + "px";
+
+        boton.addEventListener("click", () => {
+            if (juegoTerminado || pausado) return;
+            if (letrasRespondidas.has(letra)) return;
+
+            indiceActual = indice;
+            mostrarPregunta();
+            actualizarEstadoLetras();
+        });
+
+        rosco.appendChild(boton);
     });
 
-    rosco.appendChild(boton);
-  });
+    actualizarEstadoLetras();
 }
+
+// ==========================================
+// MOSTRAR PREGUNTA
+// ==========================================
 
 function mostrarPregunta() {
-  if (juegoTerminado) return;
+    if (juegoTerminado) return;
 
-  const letra = letras[indiceActual];
-  const dato = obtenerPregunta(letra);
+    const letra = letras[indiceActual];
+    const dato = obtenerPregunta(letra);
 
-  if (!dato) return;
+    if (!dato) return;
 
-  if (letraActualElemento) {
-    letraActualElemento.textContent = letra;
-  }
+    if (letraActualElemento) {
+        letraActualElemento.textContent = "LETRA " + letra;
+    }
 
-  if (preguntaElemento) {
-    preguntaElemento.textContent = dato[0];
-  }
+    if (preguntaElemento) {
+        preguntaElemento.textContent = dato[0];
+    }
 
-  if (respuestaInput) {
-    respuestaInput.value = "";
-    respuestaInput.disabled = pausado;
-    respuestaInput.focus();
-  }
+    if (respuestaInput) {
+        respuestaInput.value = "";
+        respuestaInput.disabled = pausado || juegoTerminado;
+
+        if (!pausado) {
+            respuestaInput.focus();
+        }
+    }
+
+    actualizarEstadoLetras();
 }
+
+// ==========================================
+// ACTUALIZAR COLORES DEL ROSCO
+// ==========================================
+
+function actualizarEstadoLetras() {
+    letras.forEach(letra => {
+        const elemento = document.getElementById("letra-" + letra);
+
+        if (!elemento) return;
+
+        elemento.classList.remove(
+            "actual",
+            "correcta",
+            "incorrecta",
+            "pasada"
+        );
+
+        if (letrasRespondidas.has(letra)) {
+            const dato = obtenerPregunta(letra);
+            const respuesta = respuestasPorLetra[letra];
+
+            if (respuesta === "correcta") {
+                elemento.classList.add("correcta");
+            } else {
+                elemento.classList.add("incorrecta");
+            }
+        } else if (letrasPasadas.has(letra)) {
+            elemento.classList.add("pasada");
+        }
+
+        if (letras[indiceActual] === letra && !juegoTerminado) {
+            elemento.classList.add("actual");
+        }
+    });
+}
+
+// ==========================================
+// MARCADOR
+// ==========================================
 
 function actualizarMarcador() {
-  if (correctasElemento) {
-    correctasElemento.textContent = respuestasCorrectas;
-  }
+    const totalRespondidas = letrasRespondidas.size;
+    const totalPasadas = letrasPasadas.size;
+    const totalRestantes = letras.length - totalRespondidas;
+    const porcentaje = Math.round(
+        (totalRespondidas / letras.length) * 100
+    );
 
-  if (incorrectasElemento) {
-    incorrectasElemento.textContent = respuestasIncorrectas;
-  }
+    if (correctasElemento) {
+        correctasElemento.textContent = respuestasCorrectas;
+    }
+
+    if (incorrectasElemento) {
+        incorrectasElemento.textContent = respuestasIncorrectas;
+    }
+
+    if (pasadasElemento) {
+        pasadasElemento.textContent = totalPasadas;
+    }
+
+    if (restantesElemento) {
+        restantesElemento.textContent = totalRestantes;
+    }
+
+    if (porcentajeElemento) {
+        porcentajeElemento.textContent = porcentaje + "%";
+    }
+
+    if (barraProgreso) {
+        barraProgreso.style.width = porcentaje + "%";
+    }
+
+    actualizarEstadoLetras();
 }
 
-function actualizarLetra(letra, resultado) {
-  const elemento = document.getElementById("letra-" + letra);
-  if (!elemento) return;
-
-  elemento.classList.remove("correcta", "incorrecta", "pasada");
-  elemento.classList.add(resultado);
-}
+// ==========================================
+// AVANZAR A LA SIGUIENTE LETRA
+// ==========================================
 
 function avanzarLetra() {
-  let vueltas = 0;
+    if (letrasRespondidas.size === letras.length) {
+        finalizarJuego();
+        return;
+    }
 
-  do {
-    indiceActual = (indiceActual + 1) % letras.length;
-    vueltas++;
-  } while (
-    letrasRespondidas.has(letras[indiceActual]) &&
-    vueltas <= letras.length
-  );
+    let vueltas = 0;
 
-  if (letrasRespondidas.size === letras.length) {
-    finalizarJuego();
-    return;
-  }
+    do {
+        indiceActual = (indiceActual + 1) % letras.length;
+        vueltas++;
+    } while (
+        letrasRespondidas.has(letras[indiceActual]) &&
+        vueltas < letras.length
+    );
 
-  mostrarPregunta();
+    mostrarPregunta();
 }
 
-function responder() {
-  if (juegoTerminado || pausado) return;
+// ==========================================
+// RESPONDER
+// ==========================================
 
-  const letra = letras[indiceActual];
+const respuestasPorLetra = {};
 
-  if (letrasRespondidas.has(letra)) {
-    avanzarLetra();
-    return;
-  }
+function responder(evento) {
+    if (evento) evento.preventDefault();
 
-  const dato = obtenerPregunta(letra);
-  const respuestaUsuario = normalizar(respuestaInput.value);
-  const respuestaCorrecta = normalizar(dato[1]);
+    if (juegoTerminado || pausado) return;
 
-  if (!respuestaUsuario) {
-    alert("Escribí una respuesta antes de continuar.");
-    return;
-  }
+    const letra = letras[indiceActual];
 
-  if (respuestaUsuario === respuestaCorrecta) {
-    respuestasCorrectas++;
-    actualizarLetra(letra, "correcta");
-  } else {
-    respuestasIncorrectas++;
-    actualizarLetra(letra, "incorrecta");
-  }
+    if (letrasRespondidas.has(letra)) {
+        avanzarLetra();
+        return;
+    }
 
-  letrasRespondidas.add(letra);
-  actualizarMarcador();
+    const dato = obtenerPregunta(letra);
 
-  if (letrasRespondidas.size === letras.length) {
-    finalizarJuego();
-  } else {
-    avanzarLetra();
-  }
+    if (!dato || !respuestaInput) return;
+
+    const respuestaUsuario = normalizar(respuestaInput.value);
+    const respuestaCorrecta = normalizar(dato[1]);
+
+    if (!respuestaUsuario) {
+        if (mensajeElemento) {
+            mensajeElemento.textContent = "Escribí una respuesta.";
+            mensajeElemento.className = "mensaje mal";
+        }
+        return;
+    }
+
+    if (respuestaUsuario === respuestaCorrecta) {
+        respuestasCorrectas++;
+        respuestasPorLetra[letra] = "correcta";
+
+        if (mensajeElemento) {
+            mensajeElemento.textContent = "¡Correcto!";
+            mensajeElemento.className = "mensaje bien";
+        }
+    } else {
+        respuestasIncorrectas++;
+        respuestasPorLetra[letra] = "incorrecta";
+
+        if (mensajeElemento) {
+            mensajeElemento.textContent =
+                "Incorrecto. La respuesta era: " + dato[1];
+
+            mensajeElemento.className = "mensaje mal";
+        }
+    }
+
+    letrasRespondidas.add(letra);
+    letrasPasadas.delete(letra);
+
+    actualizarMarcador();
+
+    if (letrasRespondidas.size === letras.length) {
+        finalizarJuego();
+    } else {
+        avanzarLetra();
+    }
 }
+
+// ==========================================
+// PASAPALABRA
+// ==========================================
 
 function pasarPalabra() {
-  if (juegoTerminado || pausado) return;
+    if (juegoTerminado || pausado) return;
 
-  const letra = letras[indiceActual];
+    const letra = letras[indiceActual];
 
-  if (letrasRespondidas.has(letra)) {
-    avanzarLetra();
-    return;
-  }
+    if (letrasRespondidas.has(letra)) {
+        avanzarLetra();
+        return;
+    }
 
-  if (!letrasPasadas.has(letra)) {
     letrasPasadas.add(letra);
-    actualizarLetra(letra, "pasada");
-  }
 
-  avanzarLetra();
+    actualizarMarcador();
+    avanzarLetra();
 }
 
 // ==========================================
@@ -472,163 +592,193 @@ function pasarPalabra() {
 // ==========================================
 
 function actualizarTiempo() {
-  if (!tiempoElemento) return;
+    if (!tiempoElemento) return;
 
-  const minutos = Math.floor(tiempoRestante / 60);
-  const segundos = tiempoRestante % 60;
+    const minutos = Math.floor(tiempoRestante / 60);
+    const segundos = tiempoRestante % 60;
 
-  tiempoElemento.textContent =
-    String(minutos).padStart(2, "0") + ":" +
-    String(segundos).padStart(2, "0");
+    tiempoElemento.textContent =
+        String(minutos).padStart(2, "0") + ":" +
+        String(segundos).padStart(2, "0");
 }
 
 function iniciarCronometro() {
-  clearInterval(intervalo);
+    clearInterval(intervalo);
 
-  intervalo = setInterval(() => {
-    if (pausado || juegoTerminado) return;
+    intervalo = setInterval(() => {
+        if (pausado || juegoTerminado) return;
 
-    tiempoRestante--;
-    actualizarTiempo();
+        tiempoRestante--;
 
-    if (tiempoRestante <= 0) {
-      finalizarJuego();
-    }
-  }, 1000);
+        actualizarTiempo();
+
+        if (tiempoRestante <= 0) {
+            finalizarJuego();
+        }
+    }, 1000);
 }
 
 // ==========================================
-// PAUSAR Y FINALIZAR
+// DIFICULTAD
+// ==========================================
+
+function cambiarDificultad() {
+    if (!dificultadElemento) return;
+
+    duracionPartida = Number(dificultadElemento.value) || 200;
+
+    if (!juegoTerminado) {
+        tiempoRestante = duracionPartida;
+        actualizarTiempo();
+    }
+}
+
+// ==========================================
+// PAUSAR Y REANUDAR
 // ==========================================
 
 function pausarJuego() {
-  if (juegoTerminado) return;
+    if (juegoTerminado) return;
 
-  pausado = !pausado;
+    pausado = !pausado;
 
-  if (botonPausar) {
-    botonPausar.textContent = pausado ? "Reanudar" : "Pausar";
-  }
+    if (botonPausar) {
+        botonPausar.textContent = pausado ? "▶ Reanudar" : "⏸ Pausar";
+    }
 
-  if (respuestaInput) {
-    respuestaInput.disabled = pausado;
-  }
+    if (respuestaInput) {
+        respuestaInput.disabled = pausado;
+    }
 
-  if (botonResponder) {
-    botonResponder.disabled = pausado;
-  }
+    if (botonResponder) {
+        botonResponder.disabled = pausado;
+    }
 
-  if (botonPasapalabra) {
-    botonPasapalabra.disabled = pausado;
-  }
-}
+    if (botonPasapalabra) {
+        botonPasapalabra.disabled = pausado;
+    }
 
-function finalizarJuego() {
-  if (juegoTerminado) return;
-
-  juegoTerminado = true;
-  pausado = false;
-  clearInterval(intervalo);
-
-  const total = respuestasCorrectas + respuestasIncorrectas;
-  const mensaje =
-    "Correctas: " + respuestasCorrectas +
-    " | Incorrectas: " + respuestasIncorrectas +
-    " | Sin resolver: " + (letras.length - total);
-
-  if (resultadoFinal) {
-    resultadoFinal.textContent = mensaje;
-  }
-
-  if (pantallaFinal) {
-    pantallaFinal.classList.remove("oculto");
-    pantallaFinal.style.display = "block";
-  }
-
-  if (respuestaInput) respuestaInput.disabled = true;
-  if (botonResponder) botonResponder.disabled = true;
-  if (botonPasapalabra) botonPasapalabra.disabled = true;
-  if (botonPausar) botonPausar.disabled = true;
+    if (!pausado && respuestaInput) {
+        respuestaInput.focus();
+    }
 }
 
 // ==========================================
-// REINICIAR
+// FINALIZAR PARTIDA
+// ==========================================
+
+function finalizarJuego() {
+    if (juegoTerminado) return;
+
+    juegoTerminado = true;
+    pausado = false;
+
+    clearInterval(intervalo);
+
+    const sinResolver = letras.length - letrasRespondidas.size;
+
+    if (resumenFinal) {
+        resumenFinal.textContent =
+            "Correctas: " + respuestasCorrectas +
+            " | Incorrectas: " + respuestasIncorrectas +
+            " | Pasadas: " + letrasPasadas.size +
+            " | Sin resolver: " + sinResolver;
+    }
+
+    if (pantallaFinal) {
+        pantallaFinal.classList.remove("oculto");
+    }
+
+    if (respuestaInput) respuestaInput.disabled = true;
+    if (botonResponder) botonResponder.disabled = true;
+    if (botonPasapalabra) botonPasapalabra.disabled = true;
+    if (botonPausar) botonPausar.disabled = true;
+
+    actualizarMarcador();
+}
+
+// ==========================================
+// REINICIAR PARTIDA
 // ==========================================
 
 function iniciarJuego() {
-  clearInterval(intervalo);
+    clearInterval(intervalo);
 
-  indiceActual = 0;
-  respuestasCorrectas = 0;
-  respuestasIncorrectas = 0;
-  tiempoRestante = 300;
-  pausado = false;
-  juegoTerminado = false;
+    indiceActual = 0;
+    respuestasCorrectas = 0;
+    respuestasIncorrectas = 0;
+    tiempoRestante = duracionPartida;
 
-  letrasRespondidas = new Set();
-  letrasPasadas = new Set();
-  preguntasElegidas = {};
+    pausado = false;
+    juegoTerminado = false;
 
-  if (pantallaFinal) {
-    pantallaFinal.classList.add("oculto");
-    pantallaFinal.style.display = "none";
-  }
+    letrasRespondidas = new Set();
+    letrasPasadas = new Set();
+    preguntasElegidas = {};
 
-  if (botonPausar) {
-    botonPausar.disabled = false;
-    botonPausar.textContent = "Pausar";
-  }
-
-  if (botonResponder) botonResponder.disabled = false;
-  if (botonPasapalabra) botonPasapalabra.disabled = false;
-  if (respuestaInput) respuestaInput.disabled = false;
-
-  crearRosco();
-  actualizarMarcador();
-  actualizarTiempo();
-  mostrarPregunta();
-  iniciarCronometro();
-}
-
-// ==========================================
-// EVENTOS DE LOS BOTONES
-// ==========================================
-
-if (botonResponder) {
-  botonResponder.addEventListener("click", responder);
-}
-
-if (respuestaInput) {
-  respuestaInput.addEventListener("keydown", evento => {
-    if (evento.key === "Enter") {
-      evento.preventDefault();
-      responder();
+    for (const letra in respuestasPorLetra) {
+        delete respuestasPorLetra[letra];
     }
-  });
+
+    if (pantallaFinal) {
+        pantallaFinal.classList.add("oculto");
+    }
+
+    if (botonPausar) {
+        botonPausar.disabled = false;
+        botonPausar.textContent = "⏸ Pausar";
+    }
+
+    if (botonResponder) botonResponder.disabled = false;
+    if (botonPasapalabra) botonPasapalabra.disabled = false;
+    if (respuestaInput) respuestaInput.disabled = false;
+
+    if (mensajeElemento) {
+        mensajeElemento.textContent = "";
+        mensajeElemento.className = "mensaje";
+    }
+
+    crearRosco();
+    actualizarMarcador();
+    actualizarTiempo();
+    mostrarPregunta();
+    iniciarCronometro();
+}
+
+// ==========================================
+// CONECTAR BOTONES Y EVENTOS
+// ==========================================
+
+if (formularioRespuesta) {
+    formularioRespuesta.addEventListener("submit", responder);
 }
 
 if (botonPasapalabra) {
-  botonPasapalabra.addEventListener("click", pasarPalabra);
+    botonPasapalabra.addEventListener("click", pasarPalabra);
 }
 
 if (botonPausar) {
-  botonPausar.addEventListener("click", pausarJuego);
+    botonPausar.addEventListener("click", pausarJuego);
 }
 
 if (botonReiniciar) {
-  botonReiniciar.addEventListener("click", () => {
-    if (confirm("¿Querés reiniciar la partida?")) {
-      iniciarJuego();
-    }
-  });
+    botonReiniciar.addEventListener("click", () => {
+        if (confirm("¿Querés reiniciar la partida?")) {
+            iniciarJuego();
+        }
+    });
 }
 
 if (botonJugarOtra) {
-  botonJugarOtra.addEventListener("click", iniciarJuego);
+    botonJugarOtra.addEventListener("click", iniciarJuego);
+}
+
+if (dificultadElemento) {
+    dificultadElemento.addEventListener("change", cambiarDificultad);
 }
 
 // ==========================================
-// INICIAR EL JUEGO
+// INICIAR JUEGO
 // ==========================================
 
 iniciarJuego();

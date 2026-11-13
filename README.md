@@ -15,7 +15,7 @@ PASAPANESTOR - INSTALACION LOCAL (XAMPP)
    "usuarios_pasapanestor". No borra tablas anteriores.
 
 5) Abre el proyecto:
-   http://localhost/pasapanestor-main/index.php
+   http://localhost/pasapanestor-main/Code/index.php
 
 6) Para registrarte, pulsa "Registrate" y completa los cinco campos.
    La contraseña debe tener al menos 6 caracteres.
